@@ -42,4 +42,11 @@ type Peg = String
 type Move = (Peg, Peg)
 
 hanoi :: Integer -> Peg -> Peg -> Peg -> [Move]
-hanoi = undefined
+hanoi 0 _ _ _ = []
+hanoi x a b c =  hanoi (x - 1) a c b ++ [(a, b)] ++ hanoi (x - 1) c b a
+
+hanoi4 :: Integer -> Peg -> Peg -> Peg -> Peg -> [Move]
+hanoi4 x start end tmp tmp2
+    | x <= 0    = []
+    | x == 1    = [(start, end)]
+    | otherwise = hanoi4 (x - 2) start tmp tmp2 end ++ [(start, tmp), (start, end), (tmp, start)] ++ hanoi4 (x - 2) tmp end start tmp2
