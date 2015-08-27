@@ -22,29 +22,32 @@ colors = [Red, Green, Blue, Yellow, Orange, Purple]
 -- Exercise 1 -----------------------------------------
 
 -- Get the number of exact matches between the actual code and the guess
-exactMatches :: Code -> Code -> Int
-exactMatches = undefined
+exactMatches :: (Eq a) => [a] -> [a] -> Int
+exactMatches = (sum .) . zipWith (\a b -> if a == b then 1 else 0)
 
 -- Exercise 2 -----------------------------------------
 
 -- For each peg in xs, count how many times is occurs in ys
 countColors :: Code -> [Int]
-countColors = undefined
+countColors xs = map count colors
+    where count col = length . filter (==col) $ xs
 
 -- Count number of matches between the actual code and the guess
 matches :: Code -> Code -> Int
-matches = undefined
+matches a b = sum $ zipWith min (countColors a) (countColors b)
 
 -- Exercise 3 -----------------------------------------
 
 -- Construct a Move from a guess given the actual code
 getMove :: Code -> Code -> Move
-getMove = undefined
+getMove secret guess = let exact = exactMatches secret guess
+                           nonexact = matches secret guess - exact
+                    in  Move guess exact nonexact
 
 -- Exercise 4 -----------------------------------------
 
 isConsistent :: Move -> Code -> Bool
-isConsistent = undefined
+isConsistent move@(Move m _ _) code = getMove code m == move
 
 -- Exercise 5 -----------------------------------------
 
