@@ -59,7 +59,7 @@ filterCodes move = filter (isConsistent move)
 allCodes :: Int -> [Code]
 allCodes n
     | n == 0    = []
-    | n == 1    = [colors]
+    | n == 1    = map (: []) colors
     | otherwise = concatMap (\code -> map (:code) colors) (allCodes (n - 1))
 
 -- Exercise 7 -----------------------------------------
@@ -69,7 +69,9 @@ solve secret = solver (allCodes 4) [Red, Red, Red, Red]
     where solver :: [Code] -> Code -> [Move]
           solver currentMoves nextMove
             | nextMove == secret  = []
-            | otherwise           = let newMoves = filterCodes (getMove secret nextMove) currentMoves in solver (tail newMoves) (head newMoves)
+            | otherwise           = let afterMove = getMove secret nextMove
+                                        newMoves = filterCodes afterMove currentMoves
+                                    in afterMove : solver (tail newMoves) (head newMoves)
 -- Bonus ----------------------------------------------
 
 fiveGuess :: Code -> [Move]
