@@ -52,18 +52,24 @@ isConsistent move@(Move m _ _) code = getMove code m == move
 -- Exercise 5 -----------------------------------------
 
 filterCodes :: Move -> [Code] -> [Code]
-filterCodes = undefined
+filterCodes move = filter (isConsistent move)
 
 -- Exercise 6 -----------------------------------------
 
 allCodes :: Int -> [Code]
-allCodes = undefined
+allCodes n
+    | n == 0    = []
+    | n == 1    = [colors]
+    | otherwise = concatMap (\code -> map (:code) colors) (allCodes (n - 1))
 
 -- Exercise 7 -----------------------------------------
 
 solve :: Code -> [Move]
-solve = undefined
-
+solve secret = solver (allCodes 4) [Red, Red, Red, Red]
+    where solver :: [Code] -> Code -> [Move]
+          solver currentMoves nextMove
+            | nextMove == secret  = []
+            | otherwise           = let newMoves = filterCodes (getMove secret nextMove) currentMoves in solver (tail newMoves) (head newMoves)
 -- Bonus ----------------------------------------------
 
 fiveGuess :: Code -> [Move]
