@@ -7,14 +7,14 @@ data Expression =
   deriving (Show, Eq)
 
 -- Binary (2-input) operators
-data Bop = 
-    Plus     
-  | Minus    
-  | Times    
-  | Divide   
+data Bop =
+    Plus
+  | Minus
+  | Times
+  | Divide
   | Gt
-  | Ge       
-  | Lt  
+  | Ge
+  | Lt
   | Le
   | Eql
   deriving (Show, Eq)
@@ -23,9 +23,9 @@ data Statement =
     Assign   String     Expression
   | Incr     String
   | If       Expression Statement  Statement
-  | While    Expression Statement       
+  | While    Expression Statement
   | For      Statement  Expression Statement Statement
-  | Sequence Statement  Statement        
+  | Sequence Statement  Statement
   | Skip
   deriving (Show, Eq)
 
@@ -34,15 +34,28 @@ type State = String -> Int
 -- Exercise 1 -----------------------------------------
 
 extend :: State -> String -> Int -> State
-extend = undefined
+extend oldState var val x = if x == var then val else oldState x
 
 empty :: State
-empty = undefined
+empty _ = 0
 
 -- Exercise 2 -----------------------------------------
 
 evalE :: State -> Expression -> Int
-evalE = undefined
+evalE currentState (Var var)              = currentState var
+evalE _            (Val val)              = val
+evalE currentState (Op first func second) = getBinaryFunction func (evalE currentState first) (evalE currentState second)
+    where boolToInt f a b = if f a b then 1 else 0
+          getBinaryFunction f = case f of
+                                Plus    -> (+)
+                                Minus   -> (-)
+                                Times   -> (*)
+                                Divide  -> quot
+                                Gt      -> boolToInt (>)
+                                Ge      -> boolToInt (>=)
+                                Lt      -> boolToInt (<)
+                                Le      -> boolToInt (<=)
+                                Eql     -> boolToInt (==)
 
 -- Exercise 3 -----------------------------------------
 
@@ -54,16 +67,31 @@ data DietStatement = DAssign String Expression
                      deriving (Show, Eq)
 
 desugar :: Statement -> DietStatement
-desugar = undefined
-
+desugar statement = case statement of
+                    (Assign str expr           ) -> DAssign str expr
+                    (Incr str                  ) -> DAssign str (Op (Var str) Plus (Val 1))
+                    (If expr first second      ) -> DIf expr (desugar first) (desugar second)
+                    (While expr stm            ) -> DWhile expr (desugar stm)
+                    (For start test loop inner ) -> DSequence (desugar start) (DWhile test (DSequence (desugar inner) (desugar loop)) )
+                    (Sequence first second     ) -> DSequence (desugar first) (desugar second)
+                    (Skip                      ) -> DSkip
 
 -- Exercise 4 -----------------------------------------
 
 evalSimple :: State -> DietStatement -> State
-evalSimple = undefined
+evalSimple currentState statement = case statement of
+                    (DAssign var val)           -> extendState var (evalExpression val)
+                    (DIf test correct wrong)    -> evalStatement $ if evalExpression test == 0 then wrong else correct
+                    (DWhile test loop)          -> if evalExpression test == 0 then currentState else evalSimple (evalStatement loop) statement
+                    (DSequence a b)             -> evalSimple (evalStatement a) b
+                    (DSkip)                     -> currentState
+
+                    where evalExpression = evalE currentState
+                          evalStatement = evalSimple currentState
+                          extendState = extend currentState
 
 run :: State -> Statement -> State
-run = undefined
+run state = evalSimple state . desugar
 
 -- Programs -------------------------------------------
 
