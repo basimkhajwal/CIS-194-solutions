@@ -65,9 +65,9 @@ applyP (P xs) val = snd $ foldl (\(degree, total) coeff -> (degree + 1, total + 
 class Num a => Differentiable a where
     deriv  :: a -> a
     nderiv :: Int -> a -> a
-    nderiv = undefined
+    nderiv n val = iterate deriv val !! n
 
 -- Exercise 9 -----------------------------------------
 
 instance Num a => Differentiable (Poly a) where
-    deriv = undefined
+    deriv (P xs) = (P . tail) $ zipWith (*) xs (map fromInteger [0..])
