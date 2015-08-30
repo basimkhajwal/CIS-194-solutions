@@ -4,6 +4,7 @@ module HW05 where
 
 import Data.ByteString.Lazy (ByteString)
 import Data.Map.Strict (Map)
+import Data.Bits (xor)
 import System.Environment (getArgs)
 
 import qualified Data.ByteString.Lazy as BS
@@ -14,7 +15,11 @@ import Parser
 -- Exercise 1 -----------------------------------------
 
 getSecret :: FilePath -> FilePath -> IO ByteString
-getSecret = undefined
+getSecret dogFile secretFile = do
+    dog <- BS.readFile dogFile
+    secret <- BS.readFile secretFile
+    
+    return $ BS.filter (/=0) $ BS.pack $ BS.zipWith xor dog secret
 
 -- Exercise 2 -----------------------------------------
 
@@ -66,14 +71,14 @@ doEverything dog1 dog2 trans vict fids out = do
       case mids of
         Nothing  -> error "No ids"
         Just ids -> do
-          let flow = getFlow ts       
+          let flow = getFlow ts
           writeJSON out (undoTs flow ids)
           return (getCriminal flow)
 
 main :: IO ()
 main = do
   args <- getArgs
-  crim <- 
+  crim <-
     case args of
       dog1:dog2:trans:vict:ids:out:_ ->
           doEverything dog1 dog2 trans vict ids out
@@ -84,4 +89,3 @@ main = do
                         "new-ids.json"
                         "new-transactions.json"
   putStrLn crim
-
