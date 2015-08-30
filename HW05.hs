@@ -18,13 +18,15 @@ getSecret :: FilePath -> FilePath -> IO ByteString
 getSecret dogFile secretFile = do
     dog <- BS.readFile dogFile
     secret <- BS.readFile secretFile
-    
+
     return $ BS.filter (/=0) $ BS.pack $ BS.zipWith xor dog secret
 
 -- Exercise 2 -----------------------------------------
 
 decryptWithKey :: ByteString -> FilePath -> IO ()
-decryptWithKey = undefined
+decryptWithKey key encryptedFile = do
+    encryptedText <- BS.readFile (encryptedFile ++ ".enc")
+    BS.writeFile encryptedFile $ BS.pack $ BS.zipWith xor (BS.cycle key) encryptedText
 
 -- Exercise 3 -----------------------------------------
 
