@@ -31,12 +31,18 @@ decryptWithKey key encryptedFile = do
 -- Exercise 3 -----------------------------------------
 
 parseFile :: FromJSON a => FilePath -> IO (Maybe a)
-parseFile = undefined
+parseFile filePath = do
+    fileString <- BS.readFile filePath
+    return $ decode fileString
 
 -- Exercise 4 -----------------------------------------
 
 getBadTs :: FilePath -> FilePath -> IO (Maybe [Transaction])
-getBadTs = undefined
+getBadTs victimFile transactionFile = do
+    victimData <- parseFile victimFile :: IO (Maybe [Transaction])
+    transactionData <- parseFile transactionFile :: IO (Maybe [Transaction])
+
+    return $ filter (`elem` victimData) transactionData
 
 -- Exercise 5 -----------------------------------------
 
