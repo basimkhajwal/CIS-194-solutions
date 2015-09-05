@@ -2,6 +2,8 @@
 {-# LANGUAGE OverloadedStrings, RecordWildCards #-}
 module HW05 where
 
+import Control.Applicative ((<$>), (<*>))
+
 import Data.ByteString.Lazy (ByteString)
 import Data.Map.Strict (Map)
 import Data.Bits (xor)
@@ -39,10 +41,12 @@ parseFile filePath = do
 
 getBadTs :: FilePath -> FilePath -> IO (Maybe [Transaction])
 getBadTs victimFile transactionFile = do
-    victimData <- parseFile victimFile :: IO (Maybe [Transaction])
+    victimData <- parseFile victimFile :: IO (Maybe [TId])
     transactionData <- parseFile transactionFile :: IO (Maybe [Transaction])
-
-    return $ filter (`elem` victimData) transactionData
+    return $ do
+        a <- victimData
+        b <- transactionData
+        return $ filter (\transaction -> tid transaction `elem` a) b
 
 -- Exercise 5 -----------------------------------------
 
