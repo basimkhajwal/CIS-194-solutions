@@ -41,7 +41,7 @@ getBadTs :: FilePath -> FilePath -> IO (Maybe [Transaction])
 getBadTs victimFile transactionFile = do
     victimData <- parseFile victimFile :: IO (Maybe [TId])
     transactionData <- parseFile transactionFile :: IO (Maybe [Transaction])
-    
+
     return $ do
         a <- victimData
         b <- transactionData
@@ -51,12 +51,16 @@ getBadTs victimFile transactionFile = do
 -- Exercise 5 -----------------------------------------
 
 getFlow :: [Transaction] -> Map String Integer
-getFlow = undefined
+getFlow = foldr addVictim Map.empty
+    where addVictim (Transaction a b x _) = changePerson a (-x) . changePerson b x
+          changePerson name amount = Map.alter (checkPerson amount) name
+          checkPerson val (Just old) = Just (old + val)
+          checkPerson val Nothing    = Just val
 
 -- Exercise 6 -----------------------------------------
 
 getCriminal :: Map String Integer -> String
-getCriminal = undefined
+getCriminal = fst . Map.foldrWithKey (\k x curr -> if x > snd curr then (k, x) else curr) ("", 0)
 
 -- Exercise 7 -----------------------------------------
 
