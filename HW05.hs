@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -Wall #-}
-{-# LANGUAGE OverloadedStrings, RecordWildCards #-}
+{-# LANGUAGE OverloadedStrings #-}
 module HW05 where
 
 import Data.ByteString.Lazy (ByteString)
@@ -31,9 +31,7 @@ decryptWithKey key encryptedFile = do
 -- Exercise 3 -----------------------------------------
 
 parseFile :: FromJSON a => FilePath -> IO (Maybe a)
-parseFile filePath = do
-    fileString <- BS.readFile filePath
-    return $ decode fileString
+parseFile = fmap decode . BS.readFile
 
 -- Exercise 4 -----------------------------------------
 
@@ -53,7 +51,7 @@ getBadTs victimFile transactionFile = do
 getFlow :: [Transaction] -> Map String Integer
 getFlow = foldr addVictim Map.empty
     where addVictim (Transaction a b x _) = changePerson a (-x) . changePerson b x
-          changePerson name amount = Map.alter (checkPerson amount) name
+          changePerson name money = Map.alter (checkPerson money) name
           checkPerson val (Just old) = Just (old + val)
           checkPerson val Nothing    = Just val
 
@@ -64,13 +62,26 @@ getCriminal = fst . Map.foldrWithKey (\k x curr -> if x > snd curr then (k, x) e
 
 -- Exercise 7 -----------------------------------------
 
+splitTransactions :: Map String Integer -> ([(String, Integer)], [(String, Integer)])
+splitTransactions = Map.foldrWithKey (\name money x@(more, less) -> if money == 0 then x else if money > 0 then ((name, money):more, less) else (more, (name,abs money):less) ) ([], [])
+
+evenOutMoney :: [TId] -> ([(String, Integer)], [(String, Integer)]) -> [Transaction]
+evenOutMoney [] _ = error "Not enough ID's supplied"
+evenOutMoney (i:is) splitted = case splitted of
+    (_, [])                   -> []
+    ([], _)                   -> []
+    ((a, j):as, (b, k):bs)    -> Transaction a b (min j k) i : evenOutMoney is (case compare j k of
+        GT  -> ((a, j - k):as, bs)
+        LT  -> (as, (b, k - j):bs)
+        EQ  -> (as, bs) )
+
 undoTs :: Map String Integer -> [TId] -> [Transaction]
-undoTs = undefined
+undoTs tranMap is = evenOutMoney is (splitTransactions tranMap)
 
 -- Exercise 8 -----------------------------------------
 
 writeJSON :: ToJSON a => FilePath -> a -> IO ()
-writeJSON = undefined
+writeJSON path value = BS.writeFile path (encode value)
 
 -- Exercise 9 -----------------------------------------
 
