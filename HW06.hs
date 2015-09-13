@@ -7,15 +7,17 @@ import Data.Functor
 -- Exercise 1 -----------------------------------------
 
 fib :: Integer -> Integer
-fib = undefined
+fib 0 = 1
+fib 1 = 1
+fib n = fib (n - 1) + fib (n - 2)
 
 fibs1 :: [Integer]
-fibs1 = undefined
+fibs1 = map fib [0..]
 
 -- Exercise 2 -----------------------------------------
 
 fibs2 :: [Integer]
-fibs2 = undefined
+fibs2 = 1:1:zipWith (+) fibs2 (tail fibs2)
 
 -- Exercise 3 -----------------------------------------
 
@@ -27,40 +29,40 @@ instance Show a => Show (Stream a) where
              ++ ",..."
 
 streamToList :: Stream a -> [a]
-streamToList = undefined
+streamToList (Cons a s) = a:streamToList s
 
 -- Exercise 4 -----------------------------------------
 
 instance Functor Stream where
-    fmap = undefined
+    fmap f (Cons a s) = Cons (f a) (fmap f s)
 
 -- Exercise 5 -----------------------------------------
 
 sRepeat :: a -> Stream a
-sRepeat = undefined
+sRepeat n = Cons n (sRepeat n)
 
 sIterate :: (a -> a) -> a -> Stream a
-sIterate = undefined
+sIterate f n = Cons n (sIterate f (f n))
 
 sInterleave :: Stream a -> Stream a -> Stream a
-sInterleave (Cons _ _) _ = undefined
+sInterleave (Cons n ns) b = Cons n (sInterleave b ns)
 
 sTake :: Int -> Stream a -> [a]
-sTake = undefined
+sTake n = take n . streamToList
 
 -- Exercise 6 -----------------------------------------
 
 nats :: Stream Integer
-nats = undefined
+nats = sIterate (+1) 0
 
 ruler :: Stream Integer
-ruler = undefined
+ruler = fmap (floor . logBase (2 :: Double) . fromIntegral) nats
 
 -- Exercise 7 -----------------------------------------
 
 -- | Implementation of C rand
 rand :: Int -> Stream Int
-rand = undefined
+rand = sIterate ((`mod` 2147483648) . (12345 + ) . (1103515245 * ))
 
 -- Exercise 8 -----------------------------------------
 
