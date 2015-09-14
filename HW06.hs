@@ -83,6 +83,17 @@ main :: IO ()
 main = print $ minMax $ sTake 1000000 $ rand 7666532
 
 -- Exercise 10 ----------------------------------------
+data Matrix a = Matrix a a a a
+
+instance (Num a) => Num (Matrix a) where
+    (*) (Matrix a b c d) (Matrix e f g h) = Matrix (a*e + b*g) (a*f + b*h) (c*e + d*g) (c*f + d*h)
+    (+) (Matrix a b c d) (Matrix e f g h) = Matrix (a+e) (b+f) (c+g) (d+h)
+    negate (Matrix a b c d) = Matrix (-a) (-b) (-c) (-d)
+    abs (Matrix a b c d) = Matrix (abs a) (abs b) (abs c) (abs d)
+
+    fromInteger n = Matrix 1 1 1 (fromInteger n)
 
 fastFib :: Int -> Integer
-fastFib = undefined
+fastFib 0 = 0
+fastFib n = valueOf ((0 :: Matrix Integer)^n)
+    where valueOf (Matrix _ b _ _) = b
