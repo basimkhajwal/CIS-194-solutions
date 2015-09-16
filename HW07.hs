@@ -14,19 +14,20 @@ import System.Random
 
 import qualified Data.Vector as V
 
-
 -- Exercise 1 -----------------------------------------
 
 liftM :: Monad m => (a -> b) -> m a -> m b
-liftM = undefined
+liftM f m = m >>= (return . f)
 
 swapV :: Int -> Int -> Vector a -> Maybe (Vector a)
-swapV = undefined
+swapV a b v = liftM2 takeParams (v !? a) (v !? b)
+    where takeParams valA valB = v // [(a, valB),  (b, valA)]
 
 -- Exercise 2 -----------------------------------------
 
 mapM :: Monad m => (a -> m b) -> [a] -> m [b]
-mapM = undefined
+mapM _ [] = return []
+mapM m (a:as) = liftM2 (:) (m a) (mapM m as)
 
 getElts :: [Int] -> Vector a -> Maybe [a]
 getElts = undefined
@@ -118,7 +119,7 @@ repl s@State{..} | money <= 0  = putStrLn "You ran out of money!"
             amt <- read <$> getLine
             if amt < 1 || amt > money
             then play
-            else do
+            else
               case getCards 2 deck of
                 Just ([c1, c2], d) -> do
                   putStrLn $ "You got:\n" ++ show c1
@@ -138,7 +139,7 @@ repl s@State{..} | money <= 0  = putStrLn "You ran out of money!"
                   _ | c13 > c23 -> repl $ State (m + amt) d'
                     | c13 < c23 -> repl $ State (m - amt) d'
                     | otherwise -> war (State m d') amt
-              _ -> deckEmpty 
+              _ -> deckEmpty
 
 main :: IO ()
 main = evalRandIO newDeck >>= repl . State 100
