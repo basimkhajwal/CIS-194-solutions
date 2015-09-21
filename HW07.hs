@@ -30,32 +30,39 @@ mapM _ [] = return []
 mapM m (a:as) = liftM2 (:) (m a) (mapM m as)
 
 getElts :: [Int] -> Vector a -> Maybe [a]
-getElts = undefined
+getElts xs v = mapM (v !?) xs
 
 -- Exercise 3 -----------------------------------------
 
 type Rnd a = Rand StdGen a
 
 randomElt :: Vector a -> Rnd (Maybe a)
-randomElt = undefined
+randomElt v = liftM (v !?) (getRandomR (0, V.length v - 1))
 
 -- Exercise 4 -----------------------------------------
 
 randomVec :: Random a => Int -> Rnd (Vector a)
-randomVec = undefined
+randomVec n = liftM (foldr cons V.empty . take n) getRandoms
 
 randomVecR :: Random a => Int -> (a, a) -> Rnd (Vector a)
-randomVecR = undefined
+randomVecR n r = liftM (foldr cons V.empty . take n) (getRandomRs r)
 
 -- Exercise 5 -----------------------------------------
 
 shuffle :: Vector a -> Rnd (Vector a)
-shuffle = undefined
+shuffle v | V.length v <= 1 = return v
+shuffle v = do
+    i <- getRandomR (1, V.length v - 1)
+    s <- shuffle (V.tail v // [(i - 1, V.head v)])
+    return $ cons (v ! i) s
 
 -- Exercise 6 -----------------------------------------
 
 partitionAt :: Ord a => Vector a -> Int -> (Vector a, a, Vector a)
-partitionAt = undefined
+partitionAt v n = (fst partitioned, element, snd partitioned)
+    where element = v ! n
+          newV = V.concat [V.slice 0 n v, V.slice (n+1) (V.length v - n - 1) v]
+          partitioned = V.partition ((==GT) . compare element) newV
 
 -- Exercise 7 -----------------------------------------
 
@@ -66,12 +73,19 @@ quicksort (x:xs) = quicksort [ y | y <- xs, y < x ]
                    <> (x : quicksort [ y | y <- xs, y >= x ])
 
 qsort :: Ord a => Vector a -> Vector a
-qsort = undefined
+qsort v | V.length v < 2 = v
+qsort v = let (s, e, l) = partitionAt v 0 in V.concat [qsort s, V.cons e (qsort l)]
 
 -- Exercise 8 -----------------------------------------
 
 qsortR :: Ord a => Vector a -> Rnd (Vector a)
-qsortR = undefined
+qsortR v | V.length v < 2 = return v 
+qsortR v = do
+    index <- getRandomR (0, V.length v - 1)
+    let (s, e, l) = partitionAt v index
+    smaller <- qsortR s
+    larger <- qsortR l
+    return $ V.concat [smaller, V.cons e larger]
 
 -- Exercise 9 -----------------------------------------
 
