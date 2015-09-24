@@ -66,6 +66,8 @@ partitionAt v n = (fst partitioned, element, snd partitioned)
 
 -- Exercise 7 -----------------------------------------
 
+
+
 -- Quicksort
 quicksort :: Ord a => [a] -> [a]
 quicksort [] = []
@@ -79,7 +81,7 @@ qsort v = let (s, e, l) = partitionAt v 0 in V.concat [qsort s, V.cons e (qsort 
 -- Exercise 8 -----------------------------------------
 
 qsortR :: Ord a => Vector a -> Rnd (Vector a)
-qsortR v | V.length v < 2 = return v 
+qsortR v | V.length v < 2 = return v
 qsortR v = do
     index <- getRandomR (0, V.length v - 1)
     let (s, e, l) = partitionAt v index
@@ -91,7 +93,14 @@ qsortR v = do
 
 -- Selection
 select :: Ord a => Int -> Vector a -> Rnd (Maybe a)
-select = undefined
+select n v | V.length v == 1 = return (if n == 0 then Just (V.head v) else Nothing)
+select n v = do
+    index <- getRandomR (0, V.length v - 1)
+    let (s, e, l) = partitionAt v index
+    return $ case compare n index of
+        LT -> select n s
+        GT -> select (n - index - 1) l
+        EQ -> Just e
 
 -- Exercise 10 ----------------------------------------
 
