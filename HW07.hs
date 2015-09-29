@@ -114,7 +114,7 @@ newDeck =  shuffle allCards
 
 nextCard :: Deck -> Maybe (Card, Deck)
 nextCard d | V.null d = Nothing
-nextCard d = Just (!?)
+nextCard d = Just (V.head d, V.tail d)
 
 -- Exercise 12 ----------------------------------------
 
