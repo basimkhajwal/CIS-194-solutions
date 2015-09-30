@@ -97,10 +97,11 @@ select n v | V.length v == 1 = return (if n == 0 then Just (V.head v) else Nothi
 select n v = do
     index <- getRandomR (0, V.length v - 1)
     let (s, e, l) = partitionAt v index
-    return $ case compare n index of
+
+    case compare n index of
         LT -> select n s
         GT -> select (n - index - 1) l
-        EQ -> Just e
+        EQ -> return $ Just e
 
 -- Exercise 10 ----------------------------------------
 
@@ -119,7 +120,12 @@ nextCard d = Just (V.head d, V.tail d)
 -- Exercise 12 ----------------------------------------
 
 getCards :: Int -> Deck -> Maybe ([Card], Deck)
-getCards n deck = undefined
+getCards n _ | n <= 0 = Nothing
+getCards 1 d = nextCard d
+getCards n d = do
+    (card, tailD) <- nextCard d
+    (taken, leftOver) <- getCards (n - 1) tailD
+    return (card:taken, leftOver)
 
 -- Exercise 13 ----------------------------------------
 
