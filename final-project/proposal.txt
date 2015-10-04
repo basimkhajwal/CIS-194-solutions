@@ -1,0 +1,2 @@
+Tic Tac Toe Proposal:
+- Simple Tic-Tac-Toe game that allows the user to play either a 2-player game or against computer
