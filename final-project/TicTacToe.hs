@@ -7,7 +7,28 @@ showIntro = do
     putStrLn "---------------------------------\n\n"
 
 gameMenu :: IO ()
-gameMenu = getListInput ["One player", "Two player", "L"] >>= print
+gameMenu = do
+    choice <- getListInput ["One player", "Two player", "L"]
+
+    case choice of
+        0   -> undefined
+        1   -> undefined
+        _   -> return ()
+
+
+type Grid = [Bool]
+type Move = Int
+type Player = Grid -> Grid -> IO Move
+
+playGame :: Player -> Player -> Grid -> Grid -> IO ()
+playGame first second fGrid sGrid = do
+    firstMove <- first fGrid sGrid
+    secondMove <- second sGrid fGrid
+
+    undefined
+
+main :: IO ()
+main = showIntro >> gameMenu
 
 getListInput :: [String] -> IO Int
 getListInput options = do
@@ -36,6 +57,3 @@ getIntInput = do
 
 getStringInput :: IO String
 getStringInput = putStr ">>> " >> hFlush stdout >> getLine
-
-main :: IO ()
-main = showIntro >> gameMenu
