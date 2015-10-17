@@ -20,6 +20,13 @@ type Grid = [Bool]
 type Move = Int
 type Player = Grid -> Grid -> IO Move
 
+humanPlayer :: String -> Player
+humanPlayer name fGrid sGrid = do
+    undefined
+
+showGrids :: Grid -> Grid -> String
+showGrids = zipWith (\a b -> if a then 'X' else if b then 'O' else '_')
+
 playGame :: Player -> Player -> Grid -> Grid -> IO ()
 playGame first second fGrid sGrid = do
     firstMove <- first fGrid sGrid
