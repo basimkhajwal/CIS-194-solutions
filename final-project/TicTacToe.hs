@@ -73,13 +73,13 @@ iterateGame first second fGrid sGrid = do
     putStrLn $ showGrids fGrid sGrid
 
     firstMove <- getMove first fGrid sGrid
-    let fGrid' = applyMove firstMove fGrid
+    let fGrid' = applyMove (firstMove - 1) fGrid
 
     if checkWin fGrid' then
         putStrLn $ "\n" ++ getName first ++ " wins!!"
     else do
         secondMove <- getMove second sGrid fGrid
-        let sGrid' = applyMove secondMove sGrid
+        let sGrid' = applyMove (secondMove - 1) sGrid
 
         if checkWin sGrid' then
             putStrLn $ "\n" ++ getName second ++ " wins!!"
