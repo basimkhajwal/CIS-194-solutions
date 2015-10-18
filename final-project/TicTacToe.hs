@@ -1,7 +1,5 @@
 import System.IO (stdout, hFlush)
 
-import Control.Applicative ((<$>))
-
 import Data.List (intercalate, intersperse)
 import Data.List.Split (chunksOf)
 
@@ -13,28 +11,45 @@ showIntro = do
 
 gameMenu :: IO ()
 gameMenu = do
-    choice <- getListInput ["One player", "Two player", "L"]
+    putStrLn "--------- Game Menu ------------"
+    choice <- getListInput ["One player", "Two player", "Leave Game"]
 
     case choice of
         0   -> undefined
         1   -> do
-            playGame (humanPlayer "Player One") (humanPlayer "Player Two")
-        _   -> return ()
+            putStrLn "\n-------------- Two Player Game ---------------"
+            putStrLn "\nEnter player one's name:"
+            firstName <- getStringInput
+
+            putStrLn "\nEnter player two's name:"
+            secondName <- getStringInput
+
+            let player1 = Player firstName (humanPlayer firstName)
+                player2 = Player secondName (humanPlayer secondName)
+
+            playGame player1 player2
+            gameMenu
+
+        _   -> putStrLn "Thanks for playing!!"
 
 
 type Grid = [Bool]
 type Move = Int
-type Player = Grid -> Grid -> IO Move
+
+type MoveCalculation = Grid -> Grid -> IO Move
+
+data Player = Player {
+        getName :: String,
+        getMove :: MoveCalculation
+    }
+
 
 emptyGrid :: Grid
 emptyGrid = replicate 9 False
 
-humanPlayer :: String -> Player
+humanPlayer :: String -> MoveCalculation
 humanPlayer name fGrid sGrid = do
-    putStrLn $ name ++ "'s turn:"
-    putStrLn "Current Grid:"
-    putStrLn $ showGrids fGrid sGrid
-
+    putStrLn $ "\n" ++ name ++ "'s turn:"
     putStrLn "Choose position (1-9):"
 
     let validNum n = all ($ n) [ (> 0), (< 10) , not . (fGrid !!), not . (sGrid !!)]
@@ -54,10 +69,82 @@ playGame first second = iterateGame first second emptyGrid emptyGrid
 
 iterateGame :: Player -> Player -> Grid -> Grid -> IO ()
 iterateGame first second fGrid sGrid = do
-    firstMove <- first fGrid sGrid
-    secondMove <- second sGrid fGrid
+    putStrLn "\nCurrent Grid:"
+    putStrLn $ showGrids fGrid sGrid
 
-    undefined
+    firstMove <- getMove first fGrid sGrid
+    let fGrid' = applyMove firstMove fGrid
+
+    if checkWin fGrid' then
+        putStrLn $ "\n" ++ getName first ++ " wins!!"
+    else do
+        secondMove <- getMove second sGrid fGrid
+        let sGrid' = applyMove secondMove sGrid
+
+        if checkWin sGrid' then
+            putStrLn $ "\n" ++ getName second ++ " wins!!"
+        else
+            iterateGame first second fGrid' sGrid'
+
+applyMove :: Move -> Grid -> Grid
+applyMove 0 (_:xs) = True:xs
+applyMove n (x:xs) = x: applyMove (n-1) xs
+applyMove _ []     = error "Error: grid index out of bounds"
+
+winningCombinations :: [Grid]
+winningCombinations =
+    [
+        [
+            True,   True,   True,
+            False,  False,  False,
+            False,  False,  False
+        ],
+
+        [
+            False,  False,  False,
+            True,   True,   True,
+            False,  False,  False
+        ],
+
+        [
+            False,  False,  False,
+            False,  False,  False,
+            True,   True,   True
+        ],
+
+        [
+            True,   False,  False,
+            True,   False,  False,
+            True,   False,  False
+        ],
+
+        [
+            False,  True,   False,
+            False,  True,   False,
+            False,  True,   False
+        ],
+
+        [
+            False,  False,  True,
+            False,  False,  True,
+            False,  False,  True
+        ],
+
+        [
+            True,   False,  False,
+            False,  True,   False,
+            False,  False,  True
+        ],
+
+        [
+            False,  False,  True,
+            False,  True,   False,
+            True,   False,  False
+        ]
+    ]
+
+checkWin :: Grid -> Bool
+checkWin grid = any (or . zipWith (||) grid) winningCombinations
 
 main :: IO ()
 main = showIntro >> gameMenu
