@@ -15,8 +15,8 @@ gameMenu = do
     choice <- getListInput ["One player", "Two player", "Leave Game"]
 
     case choice of
-        0   -> undefined
-        1   -> do
+        1   -> undefined
+        2   -> do
             putStrLn "\n-------------- Two Player Game ---------------"
             putStrLn "\nEnter player one's name:"
             firstName <- getStringInput
@@ -59,7 +59,7 @@ humanPlayer name fGrid sGrid = do
                 getIntInput
 
 showGrids :: Grid -> Grid -> String
-showGrids = intercalate "---" .
+showGrids = intercalate "------\n" .
             map ((++ "\n") . intersperse '|') .
             chunksOf 3 `applyTwice`
             zipWith (\a b -> if a then 'X' else if b then 'O' else '_')
@@ -144,7 +144,7 @@ winningCombinations =
     ]
 
 checkWin :: Grid -> Bool
-checkWin grid = any (or . zipWith (||) grid) winningCombinations
+checkWin grid = any (\win -> win == zipWith (&&) grid win) winningCombinations
 
 main :: IO ()
 main = showIntro >> gameMenu
