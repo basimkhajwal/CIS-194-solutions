@@ -1,5 +1,10 @@
 import System.IO (stdout, hFlush)
 
+import Control.Applicative ((<$>))
+
+import Data.List (intercalate, intersperse)
+import Data.List.Split (chunksOf)
+
 showIntro :: IO ()
 showIntro = do
     putStrLn "---------------------------------"
@@ -12,7 +17,8 @@ gameMenu = do
 
     case choice of
         0   -> undefined
-        1   -> undefined
+        1   -> do
+            playGame (humanPlayer "Player One") (humanPlayer "Player Two")
         _   -> return ()
 
 
@@ -20,15 +26,34 @@ type Grid = [Bool]
 type Move = Int
 type Player = Grid -> Grid -> IO Move
 
+emptyGrid :: Grid
+emptyGrid = replicate 9 False
+
 humanPlayer :: String -> Player
 humanPlayer name fGrid sGrid = do
-    undefined
+    putStrLn $ name ++ "'s turn:"
+    putStrLn "Current Grid:"
+    putStrLn $ showGrids fGrid sGrid
+
+    putStrLn "Choose position (1-9):"
+
+    let validNum n = all ($ n) [ (> 0), (< 10) , not . (fGrid !!), not . (sGrid !!)]
+
+    repeatUntil validNum
+                (putStrLn "Try again - invalid number")
+                getIntInput
 
 showGrids :: Grid -> Grid -> String
-showGrids = zipWith (\a b -> if a then 'X' else if b then 'O' else '_')
+showGrids = intercalate "---" .
+            map ((++ "\n") . intersperse '|') .
+            chunksOf 3 `applyTwice`
+            zipWith (\a b -> if a then 'X' else if b then 'O' else '_')
 
-playGame :: Player -> Player -> Grid -> Grid -> IO ()
-playGame first second fGrid sGrid = do
+playGame :: Player -> Player -> IO ()
+playGame first second = iterateGame first second emptyGrid emptyGrid
+
+iterateGame :: Player -> Player -> Grid -> Grid -> IO ()
+iterateGame first second fGrid sGrid = do
     firstMove <- first fGrid sGrid
     secondMove <- second sGrid fGrid
 
@@ -37,6 +62,8 @@ playGame first second fGrid sGrid = do
 main :: IO ()
 main = showIntro >> gameMenu
 
+-- Utility functions
+
 getListInput :: [String] -> IO Int
 getListInput options = do
     putStrLn "Choose one of the following: (enter the number)"
@@ -44,13 +71,19 @@ getListInput options = do
         numbered = zipWith (++) beginnings options
     mapM_ putStrLn numbered
 
-    repeatUntil (\x -> (x > 0) && (x <= length options)) getIntInput
+    repeatUntil (\x -> (x > 0) && (x <= length options))
+                (putStrLn "Try again - invalid number")
+                getIntInput
 
-repeatUntil :: (a -> Bool) -> IO a -> IO a
-repeatUntil condition f = do
+applyTwice :: (c -> d) -> (a -> b -> c) -> a -> b -> d
+applyTwice f = (.) (fmap f)
+infixl 8 `applyTwice`
+
+repeatUntil :: (a -> Bool) -> IO () -> IO a -> IO a
+repeatUntil condition err f = do
     a <- f
     if condition a then return a
-    else repeatUntil condition f
+    else err >> repeatUntil condition err f
 
 getIntInput :: IO Int
 getIntInput = do
