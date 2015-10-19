@@ -52,7 +52,7 @@ humanPlayer name fGrid sGrid = do
     putStrLn $ "\n" ++ name ++ "'s turn:"
     putStrLn "Choose position (1-9):"
 
-    let validNum n = all ($ n) [ (> 0), (< 10) , not . (fGrid !!), not . (sGrid !!)]
+    let validNum n = all ($ (n - 1)) [ (>= 0), (< 9) , not . (fGrid !!), not . (sGrid !!)]
 
     repeatUntil validNum
                 (putStrLn "Try again - invalid number")
@@ -78,7 +78,7 @@ iterateGame first second fGrid sGrid = do
     if checkWin fGrid' then
         putStrLn $ "\n" ++ getName first ++ " wins!!"
     else do
-        secondMove <- getMove second sGrid fGrid
+        secondMove <- getMove second sGrid fGrid'
         let sGrid' = applyMove (secondMove - 1) sGrid
 
         if checkWin sGrid' then
