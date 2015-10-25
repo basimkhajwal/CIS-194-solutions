@@ -47,6 +47,9 @@ data Player = Player {
 emptyGrid :: Grid
 emptyGrid = replicate 9 False
 
+countGrid :: Grid -> Int
+countGrid = sum . map (\x -> if x then 1 else 0)
+
 humanPlayer :: String -> MoveCalculation
 humanPlayer name fGrid sGrid = do
     putStrLn $ "\n" ++ name ++ "'s turn:"
@@ -77,14 +80,11 @@ iterateGame first second fGrid sGrid = do
 
     if checkWin fGrid' then
         putStrLn $ "\n" ++ getName first ++ " wins!!"
-    else do
-        secondMove <- getMove second sGrid fGrid'
-        let sGrid' = applyMove (secondMove - 1) sGrid
-
-        if checkWin sGrid' then
-            putStrLn $ "\n" ++ getName second ++ " wins!!"
+    else
+        if countGrid fGrid' + countGrid sGrid == 9 then
+            putStrLn $ "\nGame Over - draw"
         else
-            iterateGame first second fGrid' sGrid'
+            iterateGame second first sGrid fGrid'
 
 applyMove :: Move -> Grid -> Grid
 applyMove 0 (_:xs) = True:xs
