@@ -12,10 +12,26 @@ showIntro = do
 gameMenu :: IO ()
 gameMenu = do
     putStrLn "--------- Game Menu ------------"
-    choice <- getListInput ["One player", "Two player", "Leave Game"]
+    choice <- getListInput ["One Player", "Two player", "Leave Game"]
 
     case choice of
-        1   -> undefined
+        1   -> do
+            putStrLn "\n-------------- One Player Game ---------------"
+            putStrLn "Enter player name:"
+            name <- getStringInput
+
+            putStrLn "Choose difficulty:"
+            difficulty <- getListInput ["Easy"]
+
+            let human = Player name (humanPlayer name)
+            let computer = Player "Computer" $
+                case difficulty of
+                    1   ->  easyComputer
+                    _   -> undefined
+
+            playGame human computer
+            gameMenu
+
         2   -> do
             putStrLn "\n-------------- Two Player Game ---------------"
             putStrLn "\nEnter player one's name:"
@@ -49,6 +65,11 @@ emptyGrid = replicate 9 False
 
 countGrid :: Grid -> Int
 countGrid = sum . map (\x -> if x then 1 else 0)
+
+easyComputer :: MoveCalculation
+easyComputer fGrid sGrid = return $ head $ dropWhile ((combined !!) . (-1)) moveOrders
+                        where combined = zipWith (||) fGrid sGrid
+                              moveOrders = [ 5, 1, 3, 7, 9, 2, 4, 6, 8]
 
 humanPlayer :: String -> MoveCalculation
 humanPlayer name fGrid sGrid = do
