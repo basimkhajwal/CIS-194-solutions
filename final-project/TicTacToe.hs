@@ -25,9 +25,9 @@ gameMenu = do
 
             let human = Player name (humanPlayer name)
             let computer = Player "Computer" $
-                case difficulty of
-                    1   ->  easyComputer
-                    _   -> undefined
+                            case difficulty of
+                                1   ->  easyComputer
+                                _   -> undefined
 
             playGame human computer
             gameMenu
@@ -67,9 +67,9 @@ countGrid :: Grid -> Int
 countGrid = sum . map (\x -> if x then 1 else 0)
 
 easyComputer :: MoveCalculation
-easyComputer fGrid sGrid = return $ head $ dropWhile ((combined !!) . (-1)) moveOrders
+easyComputer fGrid sGrid = return $ head $ dropWhile ((combined !!) . (pred)) moveOrders
                         where combined = zipWith (||) fGrid sGrid
-                              moveOrders = [ 5, 1, 3, 7, 9, 2, 4, 6, 8]
+                              moveOrders = [ 5, 1, 3, 7, 9, 2, 4, 6, 8] :: [Int]
 
 humanPlayer :: String -> MoveCalculation
 humanPlayer name fGrid sGrid = do
