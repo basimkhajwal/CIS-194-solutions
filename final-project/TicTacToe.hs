@@ -71,6 +71,9 @@ easyComputer fGrid sGrid = return $ head $ dropWhile ((combined !!) . (pred)) mo
                         where combined = zipWith (||) fGrid sGrid
                               moveOrders = [ 5, 1, 3, 7, 9, 2, 4, 6, 8] :: [Int]
 
+hardComputer :: MoveCalculation
+hardComputer fGrid sGrid = undefined
+
 humanPlayer :: String -> MoveCalculation
 humanPlayer name fGrid sGrid = do
     putStrLn $ "\n" ++ name ++ "'s turn:"
