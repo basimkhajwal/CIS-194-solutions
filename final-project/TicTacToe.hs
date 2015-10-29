@@ -135,8 +135,10 @@ playGame first second = iterateGame first second emptyGrid emptyGrid
 
 iterateGame :: Player -> Player -> Grid -> Grid -> IO ()
 iterateGame first second fGrid sGrid = do
-    putStrLn "\nCurrent Grid:"
-    putStrLn $ showGrids fGrid sGrid
+    if getName first /= "Computer" then do
+        putStrLn "\nCurrent Grid:"
+        putStrLn $ showGrids fGrid sGrid
+    else return ()
 
     firstMove <- getMove first fGrid sGrid
     let fGrid' = applyMove (firstMove - 1) fGrid
