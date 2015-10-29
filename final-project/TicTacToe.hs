@@ -123,50 +123,50 @@ iterateGame first second fGrid sGrid = do
         else
             iterateGame second first sGrid fGrid'
 
-            showIntro :: IO ()
-            showIntro = do
-                putStrLn "---------------------------------"
-                putStrLn "Welcome to Tic Tac Toe Haskell!!"
-                putStrLn "---------------------------------\n\n"
+showIntro :: IO ()
+showIntro = do
+    putStrLn "---------------------------------"
+    putStrLn "Welcome to Tic Tac Toe Haskell!!"
+    putStrLn "---------------------------------\n\n"
 
-            gameMenu :: IO ()
-            gameMenu = do
-                putStrLn "--------- Game Menu ------------"
-                choice <- getListInput ["One Player", "Two player", "Leave Game"]
+gameMenu :: IO ()
+gameMenu = do
+    putStrLn "--------- Game Menu ------------"
+    choice <- getListInput ["One Player", "Two player", "Leave Game"]
 
-                case choice of
-                    1   -> do
-                        putStrLn "\n-------------- One Player Game ---------------"
-                        putStrLn "Enter player name:"
-                        name <- getStringInput
+    case choice of
+        1   -> do
+            putStrLn "\n-------------- One Player Game ---------------"
+            putStrLn "Enter player name:"
+            name <- getStringInput
 
-                        putStrLn "Choose difficulty:"
-                        difficulty <- getListInput ["Easy"]
+            putStrLn "Choose difficulty:"
+            difficulty <- getListInput ["Easy"]
 
-                        let human = Player name (humanPlayer name)
-                        let computer = Player "Computer" $
-                                        case difficulty of
-                                            1   ->  easyComputer
-                                            _   -> undefined
+            let human = Player name (humanPlayer name)
+            let computer = Player "Computer" $
+                            case difficulty of
+                                1   ->  easyComputer
+                                _   -> undefined
 
-                        playGame human computer
-                        gameMenu
+            playGame human computer
+            gameMenu
 
-                    2   -> do
-                        putStrLn "\n-------------- Two Player Game ---------------"
-                        putStrLn "\nEnter player one's name:"
-                        firstName <- getStringInput
+        2   -> do
+            putStrLn "\n-------------- Two Player Game ---------------"
+            putStrLn "\nEnter player one's name:"
+            firstName <- getStringInput
 
-                        putStrLn "\nEnter player two's name:"
-                        secondName <- getStringInput
+            putStrLn "\nEnter player two's name:"
+            secondName <- getStringInput
 
-                        let player1 = Player firstName (humanPlayer firstName)
-                            player2 = Player secondName (humanPlayer secondName)
+            let player1 = Player firstName (humanPlayer firstName)
+                player2 = Player secondName (humanPlayer secondName)
 
-                        playGame player1 player2
-                        gameMenu
+            playGame player1 player2
+            gameMenu
 
-                    _   -> putStrLn "Thanks for playing!!"  
+        _   -> putStrLn "Thanks for playing!!"
 
 main :: IO ()
 main = showIntro >> gameMenu
