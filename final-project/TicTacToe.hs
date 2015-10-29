@@ -76,6 +76,27 @@ winningCombinations =
         ]
     ]
 
+countHeuristic :: Grid -> Int
+countHeuristic grid = 100 * threes + 10 * twos + ones
+    where threes = length $ filter ((==3) . countGrid) $ map (zipWith (&&) grid) winningCombinations
+          twos   = length $ filter ((==2) . countGrid) $ map (zipWith (&&) grid) winningCombinations
+          ones   = countGrid grid - (3 * threes) - (2 * twos)
+
+getHeuristicScore :: Grid -> Grid -> Int
+getHeuristicScore fGrid sGrid = countHeuristic fGrid - countHeuristic sGrid
+
+getMoves :: Grid -> Grid -> [Move]
+getMoves fGrid sGrid = filter (not . (combined !!)) [0..8]
+    where combined = zipWith (&&) fGrid sGrid
+
+minimax :: Grid -> Grid -> Int -> Move -> Int
+minimax fGrid sGrid 0 move = getHeuristicScore (applyMove move fGrid) sGrid
+minimax fGrid sGrid n move = gridScore - optimumNext
+    where newGrid       = applyMove move fGrid
+          gridScore     = getHeuristicScore newGrid
+          nextMoves     = getMoves newGrid sGrid
+          optimumNext   = minimum $ map (minimax sGrid newGrid (n - 1)) nextMoves
+
 checkWin :: Grid -> Bool
 checkWin grid = any (\win -> win == zipWith (&&) grid win) winningCombinations
 
