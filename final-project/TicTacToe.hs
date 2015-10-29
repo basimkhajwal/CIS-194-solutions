@@ -93,7 +93,7 @@ minimax :: Grid -> Grid -> Int -> Move -> Int
 minimax fGrid sGrid 0 move = getHeuristicScore (applyMove move fGrid) sGrid
 minimax fGrid sGrid n move = gridScore - optimumNext
     where newGrid       = applyMove move fGrid
-          gridScore     = getHeuristicScore newGrid
+          gridScore     = getHeuristicScore newGrid sGrid
           nextMoves     = getMoves newGrid sGrid
           optimumNext   = minimum $ map (minimax sGrid newGrid (n - 1)) nextMoves
 
@@ -167,12 +167,13 @@ gameMenu = do
             name <- getStringInput
 
             putStrLn "Choose difficulty:"
-            difficulty <- getListInput ["Easy"]
+            difficulty <- getListInput ["Easy", "Hard"]
 
             let human = Player name (humanPlayer name)
             let computer = Player "Computer" $
                             case difficulty of
-                                1   ->  easyComputer
+                                1   -> easyComputer
+                                2   -> hardComputer
                                 _   -> undefined
 
             playGame human computer
