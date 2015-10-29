@@ -106,7 +106,12 @@ easyComputer fGrid sGrid = return $ head $ dropWhile ((combined !!) . (pred)) mo
                               moveOrders = [ 5, 1, 3, 7, 9, 2, 4, 6, 8] :: [Int]
 
 hardComputer :: MoveCalculation
-hardComputer fGrid sGrid = undefined
+hardComputer fGrid sGrid = do
+    let possibleMoves = getMoves fGrid sGrid
+        moveValues = map (\m -> (m, minimax fGrid sGrid 2 m)) possibleMoves
+        bestMove = fst $ foldr (\n@(_, new) o@(_, old) -> if new > old then n else o) (0, -1000) moveValues
+
+    return bestMove
 
 humanPlayer :: String -> MoveCalculation
 humanPlayer name fGrid sGrid = do
