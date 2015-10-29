@@ -166,7 +166,7 @@ iterateGame first second fGrid sGrid = do
                         playGame player1 player2
                         gameMenu
 
-                    _   -> putStrLn "Thanks for playing!!"
+                    _   -> putStrLn "Thanks for playing!!"  
 
 main :: IO ()
 main = showIntro >> gameMenu
