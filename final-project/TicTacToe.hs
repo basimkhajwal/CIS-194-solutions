@@ -78,9 +78,10 @@ winningCombinations =
 
 countHeuristic :: Grid -> Int
 countHeuristic grid = 100 * threes + 10 * twos + ones
-    where threes = length $ filter ((==3) . countGrid) $ map (zipWith (&&) grid) winningCombinations
-          twos   = length $ filter ((==2) . countGrid) $ map (zipWith (&&) grid) winningCombinations
-          ones   = countGrid grid - (3 * threes) - (2 * twos)
+    where countN n = length $ filter ((==n) . countGrid) $ map (zipWith (&&) grid) winningCombinations
+          threes = countN 3
+          twos   = countN 2
+          ones   = countN 1
 
 getHeuristicScore :: Grid -> Grid -> Int
 getHeuristicScore fGrid sGrid = countHeuristic fGrid - countHeuristic sGrid
@@ -95,7 +96,7 @@ minimax fGrid sGrid n move = gridScore - optimumNext
     where newGrid       = applyMove move fGrid
           gridScore     = getHeuristicScore newGrid sGrid
           nextMoves     = getMoves newGrid sGrid
-          optimumNext   = if null nextMoves then 0 else minimum $ map (minimax sGrid newGrid (n - 1)) nextMoves
+          optimumNext   = if null nextMoves then 0 else maximum $ map (minimax sGrid newGrid (n - 1)) nextMoves
 
 checkWin :: Grid -> Bool
 checkWin grid = any (\win -> win == zipWith (&&) grid win) winningCombinations
@@ -108,6 +109,7 @@ computerPlayer calculation = Player "Computer" move
             putStrLn "------------------"
             pos <- calculation fGrid sGrid
             putStrLn $ "Computer chose position " ++ show (pos + 1)
+            putStrLn $ showGrids sGrid (applyMove pos fGrid)
             return (pos + 1)
 
 easyComputer :: MoveCalculation
@@ -118,8 +120,9 @@ easyComputer fGrid sGrid = return $ head $ dropWhile ((combined !!) . (pred)) mo
 hardComputer :: MoveCalculation
 hardComputer fGrid sGrid = do
     let possibleMoves = getMoves fGrid sGrid
-        moveValues = map (\m -> (m, minimax fGrid sGrid 5 m)) possibleMoves
+        moveValues = map (\m -> (m, minimax fGrid sGrid 3 m)) possibleMoves
         bestMove = fst $ foldr (\n@(_, new) o@(_, old) -> if new > old then n else o) (0, -1000) moveValues
+    print moveValues
 
     return bestMove
 
@@ -171,7 +174,7 @@ showIntro = do
 
 gameMenu :: IO ()
 gameMenu = do
-    putStrLn "--------- Game Menu ------------"
+    putStrLn "\n--------- Game Menu ------------"
     choice <- getListInput ["One Player", "Two player", "Leave Game"]
 
     case choice of
