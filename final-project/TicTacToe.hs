@@ -102,11 +102,11 @@ checkWin grid = any (\win -> win == zipWith (&&) grid win) winningCombinations
 
 computerPlayer :: MoveCalculation -> Player
 computerPlayer calculation = Player "Computer" move
-    where move = do
-            putStrLn "/n------------------"
+    where move fGrid sGrid = do
+            putStrLn "\n------------------"
             putStrLn " Computer's Turn    "
             putStrLn "------------------"
-            pos <- calculation
+            pos <- calculation fGrid sGrid
             putStrLn $ "Computer chose position " ++ show pos
             return pos
 
