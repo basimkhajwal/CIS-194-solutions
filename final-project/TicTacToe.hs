@@ -117,10 +117,20 @@ easyComputer fGrid sGrid = return $ head $ dropWhile ((combined !!) . (pred)) mo
                         where combined = zipWith (||) fGrid sGrid
                               moveOrders = [ 5, 1, 3, 7, 9, 2, 4, 6, 8] :: [Int]
 
+
+mediumComputer :: MoveCalculation
+mediumComputer fGrid sGrid = do
+    let possibleMoves = getMoves fGrid sGrid
+        moveValues = map (\m -> (m, minimax fGrid sGrid 2 m)) possibleMoves
+        bestMove = fst $ foldr (\n@(_, new) o@(_, old) -> if new > old then n else o) (0, -1000) moveValues
+    print moveValues
+
+    return bestMove
+
 hardComputer :: MoveCalculation
 hardComputer fGrid sGrid = do
     let possibleMoves = getMoves fGrid sGrid
-        moveValues = map (\m -> (m, minimax fGrid sGrid 3 m)) possibleMoves
+        moveValues = map (\m -> (m, minimax fGrid sGrid 5 m)) possibleMoves
         bestMove = fst $ foldr (\n@(_, new) o@(_, old) -> if new > old then n else o) (0, -1000) moveValues
     print moveValues
 
@@ -183,15 +193,15 @@ gameMenu = do
             putStrLn "Enter player name:"
             name <- getStringInput
 
-            putStrLn "Choose difficulty:"
-            difficulty <- getListInput ["Easy", "Hard"]
+            putStrLn ""
+            difficulty <- getListInput ["Easy", "Medium", "Hard"]
 
             let human = Player name (humanPlayer name)
             let computer = computerPlayer $
                             case difficulty of
                                 1   -> easyComputer
-                                2   -> hardComputer
-                                _   -> undefined
+                                2   -> mediumComputer
+                                3   -> hardComputer
 
             playGame human computer
             gameMenu
