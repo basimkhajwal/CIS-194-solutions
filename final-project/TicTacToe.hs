@@ -107,8 +107,8 @@ computerPlayer calculation = Player "Computer" move
             putStrLn " Computer's Turn    "
             putStrLn "------------------"
             pos <- calculation fGrid sGrid
-            putStrLn $ "Computer chose position " ++ show pos
-            return pos
+            putStrLn $ "Computer chose position " ++ show (pos + 1)
+            return (pos + 1)
 
 easyComputer :: MoveCalculation
 easyComputer fGrid sGrid = return $ head $ dropWhile ((combined !!) . (pred)) moveOrders
