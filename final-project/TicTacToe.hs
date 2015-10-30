@@ -100,6 +100,16 @@ minimax fGrid sGrid n move = gridScore - optimumNext
 checkWin :: Grid -> Bool
 checkWin grid = any (\win -> win == zipWith (&&) grid win) winningCombinations
 
+computerPlayer :: MoveCalculation -> Player
+computerPlayer calculation = Player "Computer" move
+    where move = do
+            putStrLn "/n------------------"
+            putStrLn " Computer's Turn    "
+            putStrLn "------------------"
+            pos <- calculation
+            putStrLn $ "Computer chose position " ++ show pos
+            return pos
+
 easyComputer :: MoveCalculation
 easyComputer fGrid sGrid = return $ head $ dropWhile ((combined !!) . (pred)) moveOrders
                         where combined = zipWith (||) fGrid sGrid
@@ -115,14 +125,21 @@ hardComputer fGrid sGrid = do
 
 humanPlayer :: String -> MoveCalculation
 humanPlayer name fGrid sGrid = do
-    putStrLn $ "\n" ++ name ++ "'s turn:"
+    putStrLn "\n------------------------"
+    putStrLn $ name ++ "'s turn:"
+    putStrLn "-------------------------"
+    putStrLn "\nCurrent Grid:"
+    putStrLn $ showGrids fGrid sGrid
     putStrLn "Choose position (1-9):"
 
     let validNum n = all ($ (n - 1)) [ (>= 0), (< 9) , not . (fGrid !!), not . (sGrid !!)]
 
-    repeatUntil validNum
-                (putStrLn "Try again - invalid number")
+    pos <- repeatUntil validNum
+                (putStrLn "Try again - invalid position")
                 getIntInput
+
+    putStrLn $ "You chose position " ++ show pos
+    return pos
 
 showGrids :: Grid -> Grid -> String
 showGrids = intercalate "------\n" .
@@ -135,11 +152,6 @@ playGame first second = iterateGame first second emptyGrid emptyGrid
 
 iterateGame :: Player -> Player -> Grid -> Grid -> IO ()
 iterateGame first second fGrid sGrid = do
-    if getName first /= "Computer" then do
-        putStrLn "\nCurrent Grid:"
-        putStrLn $ showGrids fGrid sGrid
-    else return ()
-
     firstMove <- getMove first fGrid sGrid
     let fGrid' = applyMove (firstMove - 1) fGrid
 
@@ -172,7 +184,7 @@ gameMenu = do
             difficulty <- getListInput ["Easy", "Hard"]
 
             let human = Player name (humanPlayer name)
-            let computer = Player "Computer" $
+            let computer = computerPlayer $
                             case difficulty of
                                 1   -> easyComputer
                                 2   -> hardComputer
