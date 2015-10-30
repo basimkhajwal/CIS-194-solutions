@@ -87,7 +87,7 @@ getHeuristicScore fGrid sGrid = countHeuristic fGrid - countHeuristic sGrid
 
 getMoves :: Grid -> Grid -> [Move]
 getMoves fGrid sGrid = filter (not . (combined !!)) [0..8]
-    where combined = zipWith (&&) fGrid sGrid
+    where combined = zipWith (||) fGrid sGrid
 
 minimax :: Grid -> Grid -> Int -> Move -> Int
 minimax fGrid sGrid 0 move = getHeuristicScore (applyMove move fGrid) sGrid
@@ -95,7 +95,7 @@ minimax fGrid sGrid n move = gridScore - optimumNext
     where newGrid       = applyMove move fGrid
           gridScore     = getHeuristicScore newGrid sGrid
           nextMoves     = getMoves newGrid sGrid
-          optimumNext   = minimum $ map (minimax sGrid newGrid (n - 1)) nextMoves
+          optimumNext   = if null nextMoves then 0 else minimum $ map (minimax sGrid newGrid (n - 1)) nextMoves
 
 checkWin :: Grid -> Bool
 checkWin grid = any (\win -> win == zipWith (&&) grid win) winningCombinations
@@ -118,7 +118,7 @@ easyComputer fGrid sGrid = return $ head $ dropWhile ((combined !!) . (pred)) mo
 hardComputer :: MoveCalculation
 hardComputer fGrid sGrid = do
     let possibleMoves = getMoves fGrid sGrid
-        moveValues = map (\m -> (m, minimax fGrid sGrid 2 m)) possibleMoves
+        moveValues = map (\m -> (m, minimax fGrid sGrid 5 m)) possibleMoves
         bestMove = fst $ foldr (\n@(_, new) o@(_, old) -> if new > old then n else o) (0, -1000) moveValues
 
     return bestMove
