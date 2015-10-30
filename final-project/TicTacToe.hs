@@ -17,7 +17,7 @@ emptyGrid :: Grid
 emptyGrid = replicate 9 False
 
 countGrid :: Grid -> Int
-countGrid = sum . map (\x -> if x then 1 else 0)
+countGrid = length . filter id
 
 applyMove :: Move -> Grid -> Grid
 applyMove 0 (_:xs) = True:xs
