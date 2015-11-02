@@ -89,12 +89,25 @@ composition (Right p_r) p = Right (p_r p)
 -- Exercise 3 -----------------------------------------
 
 transposition :: (p -> q) <-> (Not q -> Not p)
-transposition = admit
+transposition = Conj dir1 dir2
+    where
+        dir1 = modus_tollens
+        dir2 not_q_p p = undo_double $ modus_tollens not_q_p (\not_p -> not_p p)
+            where second_conj (Conj _ a) = a
+                  undo_double = second_conj double_negation
 
 -- Exercise 4 -----------------------------------------
 
 de_morgan :: Not (p \/ q) <-> (Not p /\ Not q)
-de_morgan = admit
+de_morgan = Conj dir1 dir2
+    where
+        dir1 not_p_q = Conj not_p not_q
+            where
+                not_p p = not_p_q $ Left p
+                not_q q = not_p_q $ Right q
+
+        dir2 (Conj not_p _) (Left p)    = not_p p
+        dir2 (Conj _ not_q) (Right q)   = not_q q
 
 -- Natural Numbers ------------------------------------
 
