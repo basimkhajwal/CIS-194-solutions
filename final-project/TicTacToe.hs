@@ -121,7 +121,7 @@ easyComputer fGrid sGrid = return $ head $ dropWhile ((combined !!) . (pred)) mo
 mediumComputer :: MoveCalculation
 mediumComputer fGrid sGrid = do
     let possibleMoves = getMoves fGrid sGrid
-        moveValues = map (\m -> (m, minimax fGrid sGrid 2 m)) possibleMoves
+        moveValues = map (\m -> (m, minimax fGrid sGrid 1 m)) possibleMoves
         bestMove = fst $ foldr (\n@(_, new) o@(_, old) -> if new > old then n else o) (0, -1000) moveValues
     print moveValues
 
@@ -130,7 +130,7 @@ mediumComputer fGrid sGrid = do
 hardComputer :: MoveCalculation
 hardComputer fGrid sGrid = do
     let possibleMoves = getMoves fGrid sGrid
-        moveValues = map (\m -> (m, minimax fGrid sGrid 5 m)) possibleMoves
+        moveValues = map (\m -> (m, minimax fGrid sGrid 3 m)) possibleMoves
         bestMove = fst $ foldr (\n@(_, new) o@(_, old) -> if new > old then n else o) (0, -1000) moveValues
     print moveValues
 
